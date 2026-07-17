@@ -1,13 +1,17 @@
 // Servo-Scribe service worker — offline cache.
 // Bump CACHE when you change app files so clients pull the new version.
-const CACHE = "servo-scribe-v1";
+const CACHE = "servo-scribe-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
-  "./icon-512-maskable.png"
+  "./icon-512-maskable.png",
+  "./bg.jpg",
+  "./emblem.png",
+  "./ic-gear.png",
+  "./ic-reticle.png"
 ];
 
 self.addEventListener("install", (e) => {

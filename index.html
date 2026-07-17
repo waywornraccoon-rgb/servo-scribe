@@ -20,9 +20,13 @@
     --you:#3f8f5b; --foe:#b0472f; --danger:#c0392b; --ok:#2ecc71;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-  header{background:linear-gradient(90deg,#12141a,#1b1f27);border-bottom:1px solid var(--line);padding:12px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
-  header h1{font-size:17px;margin:0;letter-spacing:.5px;color:var(--accent)}
+  body{margin:0;background:#0a0c10;color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  body::before{content:"";position:fixed;inset:0;z-index:-2;background:url("bg.jpg") center/cover no-repeat;opacity:.55}
+  body::after{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(120% 90% at 50% 0%, rgba(40,30,12,.28), rgba(8,9,12,.9) 78%)}
+  .crest{height:30px;width:30px;object-fit:contain;vertical-align:middle;mix-blend-mode:screen;filter:drop-shadow(0 0 4px rgba(200,150,50,.55))}
+  .ic{height:15px;width:15px;object-fit:contain;vertical-align:-2px;margin-right:5px;mix-blend-mode:screen;opacity:.9}
+  header{background:linear-gradient(90deg,rgba(13,15,19,.92),rgba(13,15,19,.72)),url("bg.jpg") left center/cover;border-bottom:2px solid var(--accent);box-shadow:0 2px 14px rgba(0,0,0,.55);padding:11px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  header h1{font-size:17px;margin:0;letter-spacing:.5px;color:var(--accent);text-shadow:0 1px 3px rgba(0,0,0,.7);display:flex;align-items:center;gap:8px}
   header h1 span{color:var(--muted);font-weight:400;font-size:12px}
   .roundbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .pill{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:4px 10px;font-size:13px;display:flex;align-items:center;gap:6px}
@@ -39,10 +43,10 @@
   .btn.ghost{background:transparent}
   main{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px;max-width:1400px;margin:0 auto}
   @media(max-width:860px){main{grid-template-columns:1fr}}
-  .army{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .army{background:rgba(18,21,27,.82);border:1px solid rgba(200,162,74,.18);border-radius:10px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.4);backdrop-filter:blur(2px)}
   .army.you{border-top:3px solid var(--you)}
   .army.foe{border-top:3px solid var(--foe)}
-  .armyhead{padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--panel2)}
+  .armyhead{padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid rgba(200,162,74,.22);background:linear-gradient(90deg,rgba(16,18,23,.9),rgba(16,18,23,.66)),url("bg.jpg") center/cover}
   .armyhead .name{font-weight:700;font-size:15px;flex:1;min-width:120px}
   .you .dot{color:var(--you)} .foe .dot{color:var(--foe)}
   .stat{display:flex;align-items:center;gap:5px;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:3px 7px}
@@ -50,7 +54,7 @@
   .stat input{width:44px;background:transparent;border:none;color:var(--ink);font:inherit;font-weight:700;text-align:center}
   .stat .step{cursor:pointer;color:var(--accent);font-weight:700;user-select:none;padding:0 3px}
   .units{padding:8px 10px;display:flex;flex-direction:column;gap:8px;min-height:40px}
-  .unit{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+  .unit{background:rgba(30,34,43,.72);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
   .unit.dead{opacity:.45}
   .unit .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .unit .uname{font-weight:600;flex:1;min-width:100px;cursor:text;border:1px solid transparent;border-radius:4px;padding:1px 4px}
@@ -72,10 +76,10 @@
   .unit .del{color:var(--muted);cursor:pointer;font-size:12px;border:none;background:none}
   .unit .del:hover{color:var(--danger)}
   .addrow{padding:8px 10px 12px}
-  .objectives{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .objectives{grid-column:1/-1;background:rgba(18,21,27,.82);border:1px solid rgba(200,162,74,.18);border-radius:10px;padding:12px 14px;box-shadow:0 8px 26px rgba(0,0,0,.4);backdrop-filter:blur(2px)}
   .objectives h3{margin:0 0 10px;font-size:14px;color:var(--accent);letter-spacing:.5px}
   .objrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .obj{border:1px solid var(--line);border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--panel2);min-width:92px}
+  .obj{border:1px solid rgba(200,162,74,.25);border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;background:linear-gradient(rgba(16,18,23,.86),rgba(16,18,23,.6)),url("bg.jpg") center/cover;min-width:92px}
   .obj .oname{font-size:12px;color:var(--muted)}
   .obj .owner{display:flex;gap:4px}
   .obj .owner button{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer}
@@ -112,10 +116,10 @@
 </head>
 <body>
 <header>
-  <h1>&#9876; Servo-Scribe <span>40k battle companion &middot; works with any AI &middot; 11th ed</span></h1>
+  <h1><img class="crest" src="emblem.png" alt=""> Servo-Scribe <span>40k battle companion &middot; works with any AI &middot; 11th ed</span></h1>
   <button class="btn small" onclick="helpDlg.showModal()">&#63; Help &amp; guide</button>
   <div class="roundbar">
-    <div class="pill">Round <span class="step" onclick="bumpRound(-1)">&#9664;</span><b id="round">1</b><span class="step" onclick="bumpRound(1)">&#9654;</span> / 5</div>
+    <div class="pill"><img class="ic" src="ic-gear.png" alt="">Round <span class="step" onclick="bumpRound(-1)">&#9664;</span><b id="round">1</b><span class="step" onclick="bumpRound(1)">&#9654;</span> / 5</div>
     <div class="pill">Active: <b id="activeName">You</b> <button class="btn small ghost" onclick="toggleActive()">swap</button></div>
     <div class="phasebtns" id="phases"></div>
   </div>
@@ -143,11 +147,12 @@
   </section>
 
   <section class="objectives">
-    <h3>OBJECTIVES <span class="hint">&mdash; 11th: objectives sit inside terrain. Tap to set who controls.</span></h3>
+    <h3><img class="ic" src="ic-reticle.png" alt="">OBJECTIVES <span class="hint">&mdash; 11th: objectives sit inside terrain. Tap to set who controls.</span></h3>
     <div class="objrow" id="objrow"></div>
   </section>
 
   <div class="toolbar">
+    <button class="btn" onclick="copyBriefing()">&#128220; Copy AI briefing</button>
     <button class="btn primary" onclick="copyForAI()">&#128203; Copy state for AI</button>
     <button class="btn" onclick="copyStatsRequest()">&#127919; Get stats from AI</button>
     <button class="btn" onclick="showState()">View / edit raw state</button>
@@ -237,6 +242,7 @@
 
     <h4>Button cheat-sheet</h4>
     <ul>
+      <li><b>Copy AI briefing</b> &mdash; a one-time primer. Paste it into a fresh AI chat <i>before</i> your first turn so it knows the rules, the state format, and how to play. Do this once per session.</li>
       <li><b>Copy state for AI</b> &mdash; puts the whole battle on your clipboard as a ready-to-paste prompt.</li>
       <li><b>Get stats from AI</b> &mdash; asks any AI to fill datasheet stats for units missing them.</li>
       <li><b>Import list</b> &mdash; paste an army-builder export to create units in bulk.</li>
@@ -253,6 +259,49 @@
   <div class="dlg-b"><textarea id="stateText" spellcheck="false"></textarea><p class="hint" id="stateHint"></p></div>
   <div class="dlg-f" id="stateFoot"></div>
 </dialog>
+
+<script type="text/plain" id="ai-briefing">You are my opponent and/or tactical coach for a game of WARHAMMER 40,000 (11th edition). I physically move the models (on a tabletop or in Tabletop Simulator) and track the game in an app called Servo-Scribe. You never render a board: I give you the game state as text, and sometimes a photo. Make smart, legal decisions for the army I assign you (or advise mine when I ask), and tell me exactly what changed so I can update the tracker.
+
+HOW A TURN WORKS
+1. I paste the current STATE (format below); it names the active player and phase.
+2. If it's your army's turn, play the phase: declare moves, shooting/charge targets, the dice to roll, and any Command Point / stratagem use. If it's my turn and I ask for advice, recommend my best plays instead.
+3. Handle dice transparently: roll in the open and tell me results, or ask me to roll and report. Never fudge them.
+4. END EVERY RESPONSE WITH A "STATE CHANGES" LIST: wounds dealt, models removed, CP spent, objectives taken/lost, VP scored, phrased so I can type them straight into the tracker.
+
+READING THE STATE BLOCK
+- Header: Battle Round X/5 - Phase - Active player: name.
+- Objectives A-E with who controls each (or contested/none).
+- Each army shows VP and CP, then units:
+  Name - N model(s), lead on x/yW (~total W) - T# Sv#+ Inv#+ OC# - notes [flags]
+  "lead on x/y" = the current lead model has x of y wounds left; other models are full.
+  flags: cover, hidden, battle-shocked, engaged, reserve. "DESTROYED" = unit gone.
+
+11TH-EDITION ESSENTIALS
+- Engagement range is 2 inches (affects charges, screens, pile-ins, falling back).
+- A unit in/behind terrain is harder to hit: attackers take -1 to Hit. Infantry/Beast/Swarm in cover can gain Hidden (can't be targeted beyond 15 inches unless they recently fired).
+- Objectives sit inside terrain pieces; control them by total Objective Control (OC) of models within range.
+- CP economy: roughly 1 CP per battle round; spend on stratagems at the right moment.
+- Battle-shocked units have OC 0 and can't use stratagems.
+- 5 battle rounds; most missions score primary (objectives) each turn plus secondaries.
+- If a specific datasheet ability, stratagem, or mission rule matters and isn't in the state, ASK me rather than guessing.
+
+PLAYING EACH PHASE (your army's turn)
+- Command: note CP gained; call for any battle-shock tests I've flagged.
+- Movement: say which units move where in plain terms (toward objective B, into the left ruin, staying in cover, advancing, falling back, into reserve). Respect 2 inch engagement.
+- Shooting: pick targets with reasons; list weapons and the dice sequence (hits, wounds, saves, damage). Account for cover -1 and Hidden.
+- Charge: declare charges and the 2D6 distance needed; note overwatch risk.
+- Fight: pile in, make attacks, apply damage.
+
+PLAYING FROM A BOARD PHOTO (physical games)
+If I attach a photo, use it to read positions, ranges, cover, and exposure, but you cannot measure exact inches from an image, so treat distances as estimates and ask me when a call is measurement-critical. Use the tracker's stats for what each unit is and can do. If a unit's identity is unclear in the photo, ask me to label it.
+
+FAIR PLAY
+Play to win but play straight: don't invent rules, fudge dice, or give your army stats it doesn't have. If unsure of a rule, say so and pick the reasonable interpretation, flagging it. Keep me honest too: point out if one of my state updates looks illegal.
+
+TONE
+Be decisive and concise: lead with the plan, then the dice, then the state changes. A little grimdark flavour is welcome, but clarity comes first.
+
+Ready? Send me the two army rosters (or the first STATE) and let's play.</script>
 
 <script>
 const PHASES=["Command","Movement","Shooting","Charge","Fight"];
@@ -426,6 +475,12 @@ function copyForAI(){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(t).then(()=>flash("Copied! Paste into your AI assistant."),()=>openState("Copy state for AI",t,true));
   }else{openState("Copy state for AI",t,true);}
+}
+function copyBriefing(){
+  const t=(document.getElementById("ai-briefing").textContent||"").trim();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>flash("Briefing copied — paste it into your AI once, at the start."),()=>openState("AI briefing (paste once at game start)",t,true));
+  }else{openState("AI briefing (paste once at game start)",t,true);}
 }
 function flash(msg){
   const f=document.createElement("div");f.textContent=msg;

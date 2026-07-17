@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Servo-Scribe — 40k Battle Companion (11th Ed)</title>
+<meta name="description" content="Servo-Scribe: a companion battle ledger for Warhammer 40,000 (11th ed) that lets any AI act as your opponent or coach.">
+<meta name="theme-color" content="#0f1115">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Servo-Scribe">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+    --ink:#e6e8ec; --muted:#9aa3b2; --accent:#c8a24a; --accent2:#4a86c8;
+    --you:#3f8f5b; --foe:#b0472f; --danger:#c0392b; --ok:#2ecc71;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{background:linear-gradient(90deg,#12141a,#1b1f27);border-bottom:1px solid var(--line);padding:12px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  header h1{font-size:17px;margin:0;letter-spacing:.5px;color:var(--accent)}
+  header h1 span{color:var(--muted);font-weight:400;font-size:12px}
+  .roundbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pill{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:4px 10px;font-size:13px;display:flex;align-items:center;gap:6px}
+  .pill b{color:var(--accent)}
+  .pill .step{cursor:pointer;color:var(--accent);font-weight:700;user-select:none;padding:0 3px}
+  .phasebtns{display:flex;gap:4px;flex-wrap:wrap}
+  .phasebtns button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer}
+  .phasebtns button.active{background:var(--accent);color:#111;border-color:var(--accent);font-weight:600}
+  button{font-family:inherit}
+  .btn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:6px 11px;cursor:pointer;font-size:13px}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);color:#111;border-color:var(--accent);font-weight:600}
+  .btn.small{padding:3px 7px;font-size:12px}
+  .btn.ghost{background:transparent}
+  main{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px;max-width:1400px;margin:0 auto}
+  @media(max-width:860px){main{grid-template-columns:1fr}}
+  .army{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .army.you{border-top:3px solid var(--you)}
+  .army.foe{border-top:3px solid var(--foe)}
+  .armyhead{padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--panel2)}
+  .armyhead .name{font-weight:700;font-size:15px;flex:1;min-width:120px}
+  .you .dot{color:var(--you)} .foe .dot{color:var(--foe)}
+  .stat{display:flex;align-items:center;gap:5px;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:3px 7px}
+  .stat label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .stat input{width:44px;background:transparent;border:none;color:var(--ink);font:inherit;font-weight:700;text-align:center}
+  .stat .step{cursor:pointer;color:var(--accent);font-weight:700;user-select:none;padding:0 3px}
+  .units{padding:8px 10px;display:flex;flex-direction:column;gap:8px;min-height:40px}
+  .unit{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+  .unit.dead{opacity:.45}
+  .unit .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .unit .uname{font-weight:600;flex:1;min-width:100px;cursor:text;border:1px solid transparent;border-radius:4px;padding:1px 4px}
+  .unit .uname:focus{border-color:var(--line);outline:none;background:var(--panel)}
+  .unit .meta{color:var(--muted);font-size:12px;display:flex;gap:9px;flex-wrap:wrap;margin-top:5px}
+  .unit .meta b{color:var(--ink)}
+  .track{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;align-items:center}
+  .counter{display:flex;align-items:center;gap:4px}
+  .counter label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .counter .val{min-width:30px;text-align:center;font-weight:700}
+  .counter .b{cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:5px;width:24px;height:24px;color:var(--ink);font-size:15px;line-height:1}
+  .counter .b:hover{border-color:var(--accent)}
+  .whibar{height:6px;background:#000;border-radius:4px;overflow:hidden;flex:1;min-width:80px}
+  .whibar > i{display:block;height:100%;background:var(--ok)}
+  .flags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+  .flag{font-size:11px;border:1px solid var(--line);border-radius:12px;padding:2px 8px;cursor:pointer;color:var(--muted);user-select:none}
+  .flag.on{background:var(--accent2);border-color:var(--accent2);color:#fff}
+  .flag.on.bs{background:var(--danger);border-color:var(--danger)}
+  .unit .del{color:var(--muted);cursor:pointer;font-size:12px;border:none;background:none}
+  .unit .del:hover{color:var(--danger)}
+  .addrow{padding:8px 10px 12px}
+  .objectives{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .objectives h3{margin:0 0 10px;font-size:14px;color:var(--accent);letter-spacing:.5px}
+  .objrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .obj{border:1px solid var(--line);border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--panel2);min-width:92px}
+  .obj .oname{font-size:12px;color:var(--muted)}
+  .obj .owner{display:flex;gap:4px}
+  .obj .owner button{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer}
+  .obj .owner button.you{background:var(--you);border-color:var(--you);color:#fff}
+  .obj .owner button.foe{background:var(--foe);border-color:var(--foe);color:#fff}
+  .toolbar{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:4px}
+  .foot{grid-column:1/-1;text-align:center;color:var(--muted);font-size:12px;padding:6px 0 20px}
+  dialog{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;max-width:560px;width:92%;padding:0}
+  dialog::backdrop{background:rgba(0,0,0,.6)}
+  .dlg-h{padding:12px 16px;border-bottom:1px solid var(--line);font-weight:700;color:var(--accent);display:flex;justify-content:space-between;align-items:center}
+  .dlg-b{padding:14px 16px}
+  .dlg-b textarea{width:100%;height:280px;background:#0b0d11;color:#cfe;border:1px solid var(--line);border-radius:8px;padding:10px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid2 .full{grid-column:1/-1}
+  .fld{display:flex;flex-direction:column;gap:3px}
+  .fld label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .fld input{background:#0b0d11;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:7px 8px;font:inherit}
+  .dlg-f{padding:12px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+  .hint{color:var(--muted);font-size:12px}
+  #importText{width:100%;height:240px;background:#0b0d11;color:#cfe;border:1px solid var(--line);border-radius:8px;padding:10px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+  #imp-you.sel,#imp-foe.sel{background:var(--accent);color:#111;border-color:var(--accent);font-weight:600}
+  .needstats{color:#e0a800;border:1px solid #e0a800;border-radius:10px;padding:0 6px;font-size:10px;cursor:help}
+  #helpDlg{max-width:720px}
+  #helpDlg .dlg-b{max-height:70vh;overflow:auto}
+  .help h4{color:var(--accent);margin:16px 0 6px;font-size:14px;letter-spacing:.3px}
+  .help h4:first-child{margin-top:0}
+  .help p{margin:6px 0;font-size:13.5px}
+  .help ol,.help ul{margin:6px 0;padding-left:20px;font-size:13.5px}
+  .help li{margin:4px 0}
+  .help code{background:#0b0d11;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12px;color:#cfe}
+  .help .lead{color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;padding:8px 11px}
+  .help .warn{color:#e0c07a}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#9876; Servo-Scribe <span>40k battle companion &middot; works with any AI &middot; 11th ed</span></h1>
+  <button class="btn small" onclick="helpDlg.showModal()">&#63; Help &amp; guide</button>
+  <div class="roundbar">
+    <div class="pill">Round <span class="step" onclick="bumpRound(-1)">&#9664;</span><b id="round">1</b><span class="step" onclick="bumpRound(1)">&#9654;</span> / 5</div>
+    <div class="pill">Active: <b id="activeName">You</b> <button class="btn small ghost" onclick="toggleActive()">swap</button></div>
+    <div class="phasebtns" id="phases"></div>
+  </div>
+</header>
+
+<main>
+  <section class="army you" data-side="you">
+    <div class="armyhead">
+      <span class="name"><span class="dot">&#9679;</span> <span contenteditable class="ename" data-side="you">Your Army</span></span>
+      <div class="stat"><label>VP</label><span class="step" onclick="bumpVP('you',-1)">&ndash;</span><input data-side="you" data-k="vp" value="0" onchange="setStat(this)"><span class="step" onclick="bumpVP('you',1)">+</span></div>
+      <div class="stat"><label>CP</label><span class="step" onclick="bumpCP('you',-1)">&ndash;</span><input data-side="you" data-k="cp" value="0" onchange="setStat(this)"><span class="step" onclick="bumpCP('you',1)">+</span></div>
+    </div>
+    <div class="units" id="units-you"></div>
+    <div class="addrow"><button class="btn" onclick="openAdd('you')">+ Add unit</button> <button class="btn" onclick="openImport('you')">&#11045; Import list</button></div>
+  </section>
+
+  <section class="army foe" data-side="foe">
+    <div class="armyhead">
+      <span class="name"><span class="dot">&#9679;</span> <span contenteditable class="ename" data-side="foe">AI Opponent</span></span>
+      <div class="stat"><label>VP</label><span class="step" onclick="bumpVP('foe',-1)">&ndash;</span><input data-side="foe" data-k="vp" value="0" onchange="setStat(this)"><span class="step" onclick="bumpVP('foe',1)">+</span></div>
+      <div class="stat"><label>CP</label><span class="step" onclick="bumpCP('foe',-1)">&ndash;</span><input data-side="foe" data-k="cp" value="0" onchange="setStat(this)"><span class="step" onclick="bumpCP('foe',1)">+</span></div>
+    </div>
+    <div class="units" id="units-foe"></div>
+    <div class="addrow"><button class="btn" onclick="openAdd('foe')">+ Add unit</button> <button class="btn" onclick="openImport('foe')">&#11045; Import list</button></div>
+  </section>
+
+  <section class="objectives">
+    <h3>OBJECTIVES <span class="hint">&mdash; 11th: objectives sit inside terrain. Tap to set who controls.</span></h3>
+    <div class="objrow" id="objrow"></div>
+  </section>
+
+  <div class="toolbar">
+    <button class="btn primary" onclick="copyForAI()">&#128203; Copy state for AI</button>
+    <button class="btn" onclick="copyStatsRequest()">&#127919; Get stats from AI</button>
+    <button class="btn" onclick="showState()">View / edit raw state</button>
+    <button class="btn" onclick="exportJSON()">&#11015; Export</button>
+    <button class="btn" onclick="importJSON()">&#11014; Import</button>
+    <button class="btn ghost" onclick="if(confirm('Reset the whole battle?')){resetAll()}">Reset battle</button>
+  </div>
+  <div class="foot">Autosaves in this browser. Each turn, hit &ldquo;Copy state for AI&rdquo; and paste it into your AI assistant (Claude, ChatGPT, Gemini&hellip;) so it can play the opponent or advise you. New here? Open <b>Help &amp; guide</b> up top.</div>
+</main>
+
+<dialog id="addDlg">
+  <div class="dlg-h"><span>Add unit</span><button class="btn small ghost" onclick="addDlg.close()">&#10005;</button></div>
+  <div class="dlg-b">
+    <div class="grid2">
+      <div class="fld full"><label>Unit name</label><input id="f-name" placeholder="e.g. Intercessor Squad"></div>
+      <div class="fld"><label>Models</label><input id="f-models" type="number" value="5" min="1"></div>
+      <div class="fld"><label>Wounds / model</label><input id="f-w" type="number" value="2" min="1"></div>
+      <div class="fld"><label>Toughness</label><input id="f-t" type="number" value="4" min="1"></div>
+      <div class="fld"><label>Save</label><input id="f-sv" placeholder="3+"></div>
+      <div class="fld"><label>Invuln</label><input id="f-inv" placeholder="&mdash;"></div>
+      <div class="fld"><label>OC (obj control)</label><input id="f-oc" type="number" value="2" min="0"></div>
+      <div class="fld"><label>Points</label><input id="f-pts" type="number" value="0" min="0"></div>
+      <div class="fld full"><label>Key weapons / notes</label><input id="f-notes" placeholder="e.g. bolt rifles, 1x plasma; Oath target"></div>
+    </div>
+    <p class="hint" style="margin:10px 0 0">Faction-agnostic &mdash; enter stats straight off the datasheet. Multi-wound models track wounds on the lead model.</p>
+  </div>
+  <div class="dlg-f">
+    <button class="btn ghost" onclick="addDlg.close()">Cancel</button>
+    <button class="btn primary" onclick="commitAdd()">Add unit</button>
+  </div>
+</dialog>
+
+<dialog id="importDlg">
+  <div class="dlg-h"><span>Import army list</span><button class="btn small ghost" onclick="importDlg.close()">&#10005;</button></div>
+  <div class="dlg-b">
+    <p class="hint" style="margin:0 0 8px">Paste the exported text list from the <b>Warhammer 40,000 app</b>, <b>BattleScribe</b>, <b>New Recruit</b>, or <b>WTC/GW</b> format. It reads unit names, model counts, wargear &amp; points automatically. Datasheet stats (T/Sv/W/OC) aren&rsquo;t in list exports &mdash; import first, then hit &ldquo;Get stats from AI&rdquo;.</p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <span class="hint">Add to:</span>
+      <button class="btn small" id="imp-you" onclick="setImpSide('you')">Your Army</button>
+      <button class="btn small" id="imp-foe" onclick="setImpSide('foe')">AI Opponent</button>
+      <span class="hint" id="imp-count" style="margin-left:auto"></span>
+    </div>
+    <textarea id="importText" spellcheck="false" placeholder="Paste your army list here..." oninput="previewImport()"></textarea>
+    <p class="hint" id="importPreview" style="margin:8px 0 0"></p>
+  </div>
+  <div class="dlg-f">
+    <button class="btn ghost" onclick="importDlg.close()">Cancel</button>
+    <button class="btn primary" onclick="commitImport()">Parse &amp; add units</button>
+  </div>
+</dialog>
+
+<dialog id="helpDlg">
+  <div class="dlg-h"><span>Servo-Scribe &mdash; Playtester Guide</span><button class="btn small ghost" onclick="helpDlg.close()">&#10005;</button></div>
+  <div class="dlg-b help">
+    <p class="lead">Servo-Scribe is a companion &ldquo;ledger&rdquo; for Warhammer 40,000 (11th edition). You move the models &mdash; on a physical table or in Tabletop Simulator &mdash; and Servo-Scribe keeps the bookkeeping (rosters, wounds, CP, VP, objectives) so an <b>AI assistant</b> can act as your opponent or coach. It works with <b>any</b> AI that reads text (and images, for board photos): Claude, ChatGPT, Gemini, Copilot, and others.</p>
+
+    <h4>The idea in one line</h4>
+    <p>You are the hands and the board; the AI is the brain; Servo-Scribe is the shared memory that keeps them both honest.</p>
+
+    <h4>1 &middot; Build your armies</h4>
+    <ol>
+      <li>Rename each army by clicking its title (&ldquo;Your Army&rdquo; / &ldquo;AI Opponent&rdquo;).</li>
+      <li>Add units with <b>+ Add unit</b>, or <b>&#11045; Import list</b> to paste a text export from the <b>Warhammer 40,000 app</b>, <b>BattleScribe</b>, or <b>New Recruit</b>. Import reads names, model counts, wargear and points automatically.</li>
+      <li>List exports don&rsquo;t include datasheet stats, so imported units show a <span class="warn">&#9888; stats</span> tag. Hit <b>&#127919; Get stats from AI</b>, paste the request into your AI, and type back the T / Sv / Inv / W / OC it returns.</li>
+    </ol>
+
+    <h4>2 &middot; Play a turn (digital or tabletop)</h4>
+    <ol>
+      <li>As you play, update each unit&rsquo;s <b>Models</b> and <b>Lead W</b> (wounds), toggle flags (in cover, hidden, battle-shocked, engaged, reserve), set <b>objective</b> control, and adjust <b>CP / VP</b> and the <b>round / phase</b> at the top.</li>
+      <li>Hit <b>&#128203; Copy state for AI</b>. Paste it into your AI assistant.</li>
+      <li>The AI plays the opponent&rsquo;s turn (or advises yours): movements, targets, dice to roll, stratagems &mdash; then tells you what changed.</li>
+      <li>Apply those changes on the board and in Servo-Scribe. Repeat.</li>
+    </ol>
+
+    <h4>3 &middot; Real tabletop? Use a board photo</h4>
+    <p>For physical games, the AI can&rsquo;t see your table &mdash; so show it. Take a photo and send it to your AI <i>together with</i> the copied state (the state says what each unit is; the photo shows where it is).</p>
+    <ul>
+      <li><b>Shoot from above</b>, looking down the table &mdash; the single biggest factor in a readable photo.</li>
+      <li>Drop a <b>tape measure or a d6</b> in frame so the AI has a sense of scale.</li>
+      <li><b>Label the clusters</b> in your message (&ldquo;five on the left ruin = Intercessors&rdquo;), especially for unpainted or proxy models.</li>
+      <li>Keep <b>objective markers and terrain</b> visible.</li>
+    </ul>
+    <p class="warn">What to expect: an AI reads positions, exposure, lanes and rough distances well, and gives strong strategic advice. It <b>can&rsquo;t</b> measure exact inches from a photo or identify a mini&rsquo;s datasheet on sight &mdash; so treat its measurements as estimates and tell it what each unit is.</p>
+
+    <h4>4 &middot; Saving &amp; sharing</h4>
+    <p>Servo-Scribe autosaves in this browser. Use <b>&#11015; Export</b> / <b>&#11014; Import</b> to back up a battle or move it between devices, and <b>View / edit raw state</b> to tweak anything by hand. <b>Reset battle</b> clears everything for a fresh game.</p>
+
+    <h4>Button cheat-sheet</h4>
+    <ul>
+      <li><b>Copy state for AI</b> &mdash; puts the whole battle on your clipboard as a ready-to-paste prompt.</li>
+      <li><b>Get stats from AI</b> &mdash; asks any AI to fill datasheet stats for units missing them.</li>
+      <li><b>Import list</b> &mdash; paste an army-builder export to create units in bulk.</li>
+      <li><b>swap</b> (top) &mdash; flip the active player. Arrows step the battle round; tap a phase to set it.</li>
+    </ul>
+  </div>
+  <div class="dlg-f">
+    <button class="btn primary" onclick="helpDlg.close()">Got it</button>
+  </div>
+</dialog>
+
+<dialog id="stateDlg">
+  <div class="dlg-h"><span id="stateTitle">Game state</span><button class="btn small ghost" onclick="stateDlg.close()">&#10005;</button></div>
+  <div class="dlg-b"><textarea id="stateText" spellcheck="false"></textarea><p class="hint" id="stateHint"></p></div>
+  <div class="dlg-f" id="stateFoot"></div>
+</dialog>
+
+<script>
+const PHASES=["Command","Movement","Shooting","Charge","Fight"];
+const OBJ_NAMES=["A","B","C","D","E"];
+let S;
+
+function fresh(){
+  return {
+    round:1, active:"you", phase:0,
+    names:{you:"Your Army", foe:"AI Opponent"},
+    you:{vp:0,cp:0,units:[]},
+    foe:{vp:0,cp:0,units:[]},
+    obj:{A:null,B:null,C:null,D:null,E:null}
+  };
+}
+function load(){
+  try{const r=localStorage.getItem("wh40k_ledger");if(r){S=JSON.parse(r);return}}catch(e){}
+  S=fresh();
+}
+function save(){try{localStorage.setItem("wh40k_ledger",JSON.stringify(S))}catch(e){}}
+function uid(){return Math.random().toString(36).slice(2,8)}
+
+function render(){
+  document.getElementById("round").textContent=S.round;
+  document.getElementById("activeName").textContent = S.active==="you"?S.names.you:S.names.foe;
+  const pc=document.getElementById("phases");pc.innerHTML="";
+  PHASES.forEach((p,i)=>{const b=document.createElement("button");b.textContent=p;if(i===S.phase)b.className="active";b.onclick=()=>{S.phase=i;commit()};pc.appendChild(b)});
+  document.querySelectorAll(".ename").forEach(el=>{const s=el.dataset.side;if(el.textContent.trim()!==S.names[s])el.textContent=S.names[s]});
+  document.querySelectorAll("input[data-k]").forEach(inp=>{inp.value=S[inp.dataset.side][inp.dataset.k]});
+  ["you","foe"].forEach(renderUnits);
+  renderObj();
+  save();
+}
+function renderUnits(side){
+  const host=document.getElementById("units-"+side);host.innerHTML="";
+  if(!S[side].units.length){host.innerHTML='<p class="hint" style="padding:4px 4px 8px">No units yet.</p>';}
+  S[side].units.forEach(u=>{
+    const maxW=u.models*u.wpm;
+    const curW=(u.models-1)*u.wpm + u.leadW;
+    const pct=maxW>0?Math.max(0,Math.min(100,100*curW/maxW)):0;
+    const dead=u.models<=0;
+    const el=document.createElement("div");el.className="unit"+(dead?" dead":"");
+    el.innerHTML=
+      '<div class="top">'+
+        '<span class="uname" contenteditable onblur="renameUnit(\''+side+'\',\''+u.id+'\',this.textContent)">'+esc(u.name)+'</span>'+
+        '<button class="del" title="remove" onclick="delUnit(\''+side+'\',\''+u.id+'\')">&#10005; remove</button>'+
+      '</div>'+
+      '<div class="meta">'+
+        '<span>T<b>'+u.t+'</b></span><span>Sv <b>'+esc(u.sv||"—")+'</b></span>'+
+        '<span>Inv <b>'+esc(u.inv||"—")+'</b></span><span>OC <b>'+u.oc+'</b></span>'+
+        '<span>W/model <b>'+u.wpm+'</b></span>'+(u.pts?'<span><b>'+u.pts+'</b>pts</span>':"")+
+        (u.needStats?'<span class="needstats" title="Imported from a list — datasheet stats need filling. Use \'Get stats from AI\'.">&#9888; stats</span>':"")+
+        (u.notes?'<span style="color:var(--muted)">&middot; '+esc(u.notes)+'</span>':"")+
+      '</div>'+
+      '<div class="track">'+
+        '<div class="counter"><label>Models</label>'+
+          '<button class="b" onclick="chModels(\''+side+'\',\''+u.id+'\',-1)">&ndash;</button>'+
+          '<span class="val">'+u.models+'</span>'+
+          '<button class="b" onclick="chModels(\''+side+'\',\''+u.id+'\',1)">+</button>'+
+        '</div>'+
+        '<div class="counter"><label>Lead W</label>'+
+          '<button class="b" onclick="chLead(\''+side+'\',\''+u.id+'\',-1)">&ndash;</button>'+
+          '<span class="val">'+u.leadW+'/'+u.wpm+'</span>'+
+          '<button class="b" onclick="chLead(\''+side+'\',\''+u.id+'\',1)">+</button>'+
+        '</div>'+
+        '<div class="whibar"><i style="width:'+pct+'%;background:'+(pct>50?'var(--ok)':pct>20?'#e0a800':'var(--danger)')+'"></i></div>'+
+      '</div>'+
+      '<div class="flags">'+
+        flagBtn(side,u,'cover','In cover')+
+        flagBtn(side,u,'hidden','Hidden')+
+        flagBtn(side,u,'bs','Battle-shocked')+
+        flagBtn(side,u,'engaged','Engaged')+
+        flagBtn(side,u,'reserve','In reserve')+
+      '</div>';
+    host.appendChild(el);
+  });
+}
+function flagBtn(side,u,key,label){
+  const on=u.flags&&u.flags[key];
+  return '<span class="flag '+(on?'on':'')+' '+(key==='bs'?'bs':'')+'" onclick="toggleFlag(\''+side+'\',\''+u.id+'\',\''+key+'\')">'+label+'</span>';
+}
+function renderObj(){
+  const row=document.getElementById("objrow");row.innerHTML="";
+  OBJ_NAMES.forEach(n=>{
+    const owner=S.obj[n];
+    const el=document.createElement("div");el.className="obj";
+    el.innerHTML='<span class="oname">Obj '+n+'</span>'+
+      '<div class="owner">'+
+        '<button class="'+(owner==='you'?'you':'')+'" onclick="setObj(\''+n+'\',\'you\')">You</button>'+
+        '<button class="'+(owner==='foe'?'foe':'')+'" onclick="setObj(\''+n+'\',\'foe\')">Foe</button>'+
+        '<button onclick="setObj(\''+n+'\',null)">&mdash;</button>'+
+      '</div>';
+    row.appendChild(el);
+  });
+}
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+function commit(){render()}
+function bumpRound(d){S.round=Math.max(1,S.round+d);commit()}
+function toggleActive(){S.active=S.active==="you"?"foe":"you";commit()}
+function setStat(inp){S[inp.dataset.side][inp.dataset.k]=parseInt(inp.value||0);commit()}
+function bumpVP(s,d){S[s].vp=Math.max(0,S[s].vp+d);commit()}
+function bumpCP(s,d){S[s].cp=Math.max(0,S[s].cp+d);commit()}
+function setObj(n,side){S.obj[n]=side;commit()}
+
+document.querySelectorAll(".ename").forEach(el=>{
+  el.addEventListener("blur",()=>{S.names[el.dataset.side]=el.textContent.trim()||el.dataset.side;commit()});
+});
+
+let addSide="you";
+function openAdd(side){addSide=side;
+  ["name","notes","inv"].forEach(k=>document.getElementById("f-"+k).value="");
+  document.getElementById("f-sv").value="3+";
+  document.getElementById("f-models").value=5;document.getElementById("f-w").value=2;
+  document.getElementById("f-t").value=4;document.getElementById("f-oc").value=2;document.getElementById("f-pts").value=0;
+  addDlg.showModal();document.getElementById("f-name").focus();
+}
+function commitAdd(){
+  const g=id=>document.getElementById("f-"+id).value;
+  const name=g("name").trim();if(!name){document.getElementById("f-name").focus();return}
+  const wpm=Math.max(1,parseInt(g("w")||1));
+  S[addSide].units.push({id:uid(),name:name,models:Math.max(1,parseInt(g("models")||1)),wpm:wpm,
+    leadW:wpm, t:parseInt(g("t")||1), sv:g("sv").trim(), inv:g("inv").trim(),
+    oc:parseInt(g("oc")||0), pts:parseInt(g("pts")||0), notes:g("notes").trim(), flags:{}});
+  addDlg.close();commit();
+}
+function delUnit(s,id){S[s].units=S[s].units.filter(u=>u.id!==id);commit()}
+function renameUnit(s,id,txt){const u=S[s].units.find(u=>u.id===id);if(u){u.name=txt.trim()||u.name}save()}
+function chModels(s,id,d){const u=S[s].units.find(u=>u.id===id);if(!u)return;
+  u.models=Math.max(0,u.models+d);
+  if(d<0)u.leadW=u.wpm;
+  if(u.models===0)u.leadW=0;commit()}
+function chLead(s,id,d){const u=S[s].units.find(u=>u.id===id);if(!u||u.models<=0)return;
+  u.leadW+=d;
+  if(u.leadW<=0){
+    if(u.models>1){u.models-=1;u.leadW=u.wpm;}else{u.models=0;u.leadW=0;}
+  } else if(u.leadW>u.wpm){u.leadW=u.wpm;}
+  commit()}
+function toggleFlag(s,id,key){const u=S[s].units.find(u=>u.id===id);if(!u)return;u.flags=u.flags||{};u.flags[key]=!u.flags[key];commit()}
+
+function resetAll(){S=fresh();render()}
+
+function buildStateText(){
+  const L=[];
+  L.push("You are helping with a game of WARHAMMER 40,000 (11th edition, ~2000 pts). Below is the live battle state from my tracker.");
+  L.push("Act as the \""+S.names.foe+"\" army against me — OR, if I ask, advise my own \""+S.names.you+"\" moves instead.");
+  L.push("If I attach a photo of the board, use it to read unit POSITIONS; use the stats below for what each unit IS and can do. 11th-ed reminders: engagement range 2\", terrain gives -1 to hit + Hidden, objectives sit inside terrain.");
+  L.push("");
+  L.push("=== BATTLE STATE ===");
+  L.push("Battle Round "+S.round+"/5 · "+PHASES[S.phase]+" phase · Active player: "+(S.active==="you"?S.names.you:S.names.foe));
+  const objLines=OBJ_NAMES.map(n=>n+":"+(S.obj[n]==='you'?S.names.you:S.obj[n]==='foe'?S.names.foe:'contested/none'));
+  L.push("Objectives — "+objLines.join(" | "));
+  L.push("");
+  ["you","foe"].forEach(side=>{
+    L.push("### "+S.names[side]+"  (VP "+S[side].vp+" · CP "+S[side].cp+")");
+    if(!S[side].units.length){L.push("  (no units)");}
+    S[side].units.forEach(u=>{
+      const curW=(u.models-1)*u.wpm+u.leadW;
+      const flags=Object.keys(u.flags||{}).filter(k=>u.flags[k]);
+      const fl=flags.length?" ["+flags.join(", ")+"]":"";
+      const status=u.models<=0?"DESTROYED":u.models+" model(s), lead on "+u.leadW+"/"+u.wpm+"W (~"+curW+"W total)";
+      L.push("  • "+u.name+" — "+status+" · T"+u.t+" Sv"+(u.sv||'—')+" Inv"+(u.inv||'—')+" OC"+u.oc+(u.notes?' · '+u.notes:'')+fl);
+    });
+    L.push("");
+  });
+  L.push("YOUR TASK: play (or advise) the current phase — give movements, targets, dice to roll, and any CP/stratagem use. Then list the state changes I should update in the tracker (wounds, models lost, CP spent, objectives taken).");
+  return L.join("\n");
+}
+function copyForAI(){
+  const t=buildStateText();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>flash("Copied! Paste into your AI assistant."),()=>openState("Copy state for AI",t,true));
+  }else{openState("Copy state for AI",t,true);}
+}
+function flash(msg){
+  const f=document.createElement("div");f.textContent=msg;
+  f.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#111;padding:10px 18px;border-radius:8px;font-weight:600;z-index:99;box-shadow:0 4px 20px rgba(0,0,0,.4)";
+  document.body.appendChild(f);setTimeout(()=>f.remove(),2200);
+}
+function openState(title,text,readonlyIsh){
+  document.getElementById("stateTitle").textContent=title;
+  const ta=document.getElementById("stateText");ta.value=text;
+  const foot=document.getElementById("stateFoot");foot.innerHTML="";
+  document.getElementById("stateHint").textContent = readonlyIsh?"Select all and copy manually if the clipboard button didn't work.":"Edit the JSON and click Apply to overwrite the battle.";
+  if(!readonlyIsh){
+    const apply=document.createElement("button");apply.className="btn primary";apply.textContent="Apply";
+    apply.onclick=()=>{try{S=JSON.parse(ta.value);stateDlg.close();render();flash("State applied.")}catch(e){alert("Invalid JSON: "+e.message)}};
+    foot.appendChild(apply);
+  }
+  const close=document.createElement("button");close.className="btn ghost";close.textContent="Close";close.onclick=()=>stateDlg.close();
+  foot.appendChild(close);
+  stateDlg.showModal();
+}
+function showState(){openState("Raw game state (JSON)",JSON.stringify(S,null,2),false)}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="40k-battle-r"+S.round+".json";a.click();
+}
+function importJSON(){
+  const inp=document.createElement("input");inp.type="file";inp.accept=".json,application/json";
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{try{S=JSON.parse(r.result);render();flash("Battle imported.")}catch(e){alert("Bad file: "+e.message)}};r.readAsText(f)};
+  inp.click();
+}
+
+// ---- army-list import ----
+let impSide="you";
+function openImport(side){impSide=side;
+  document.getElementById("importText").value="";
+  document.getElementById("importPreview").textContent="";
+  document.getElementById("imp-count").textContent="";
+  setImpSide(side);importDlg.showModal();
+}
+function setImpSide(side){impSide=side;
+  document.getElementById("imp-you").className="btn small"+(side==="you"?" sel":"");
+  document.getElementById("imp-foe").className="btn small"+(side==="foe"?" sel":"");
+}
+// Detects Warhammer 40,000 App / BattleScribe / New Recruit / WTC text exports.
+function parseArmyList(text){
+  const units=[];
+  const lines=text.replace(/\r/g,"").split("\n");
+  // trailing points: "Name (80 Points)" | "Name [80 pts]" | "Name: 80pts"
+  const tailRe=/^(.*?)[\s:]*[\(\[]?\s*(\d+)\s*(?:pts|points?|pl)\b\s*[\)\]]?\s*:?\s*$/i;
+  // inline points: "Name (80 Points): wargear, more"  (New Recruit / BattleScribe)
+  const inlineRe=/^(.*?)\s*[\(\[]\s*(\d+)\s*(?:pts|points?|pl)\b\s*[\)\]]\s*:\s*(.+)$/i;
+  // bullet incl. BattleScribe dot-indent: ". 10x", ".. 1x", "• 4x", "- 1x"
+  const bulletRe=/^([\s.]*)(?:[•◦▪·.\-\*o]\s*)*?(\d+)?x?\s+(.+?)\s*$/;
+  const anyBullet=/^\s*[•◦▪·.\-\*o]/;
+  const sectionRe=/^[A-Z][A-Z0-9 \-\/&']+$/;            // CHARACTERS, OTHER DATASHEETS
+  const skipRe=/^(strike force|incursion|combat patrol|onslaught|boarding|crusade|army roster|show\/hide|exported|created with|total|patrol|detachment)/i;
+  const nameQty=/^(\d+)\s*x\s+(.+)$/i;                  // "3x Tyranid Warriors"
+  let cur=null;
+  function computeModels(u){
+    if(u._nameQty) return u._nameQty;
+    if(!u._grp.length) return 1;
+    const mind=Math.min.apply(null,u._grp.map(g=>g.i));
+    const shallow=u._grp.filter(g=>g.i===mind);
+    const nested=u._grp.some(g=>g.i>mind);
+    return nested ? shallow.reduce((a,g)=>a+g.q,0)     // weapons nested under models → sum model groups
+                  : Math.max.apply(null,shallow.map(g=>g.q)); // flat → largest quantity (squad size)
+  }
+  function push(){ if(cur){ cur.models=Math.max(1,computeModels(cur));
+      cur.notes=cur.wargear.slice(0,10).join(", "); delete cur.wargear; delete cur._grp; delete cur._nameQty;
+      units.push(cur); cur=null; } }
+  function newUnit(name,pts){
+    let nq=0; const nm=name.match(nameQty); if(nm){nq=parseInt(nm[1]); name=nm[2].trim();}
+    return {name:name, pts:pts, models:0, wpm:1, t:0, sv:"", inv:"", oc:1, needStats:true, wargear:[], flags:{}, _grp:[], _nameQty:nq};
+  }
+  function addGroup(u,qty,what,indent){ u.wargear.push((qty>1?qty+"x ":"")+what); u._grp.push({i:indent,q:qty}); }
+  for(const raw of lines){
+    const line=raw.trim();
+    if(!line) continue;
+    if(/^[\+=_~\-]{3,}$/.test(line)) continue;          // decorative rules
+    const inl=line.match(inlineRe);
+    if(inl && !anyBullet.test(raw) && !skipRe.test(inl[1].trim())){
+      push(); cur=newUnit(inl[1].trim(), parseInt(inl[2]));
+      // pull "Nx thing" and plain tokens from inline wargear
+      inl[3].split(/,|;/).forEach(tok=>{tok=tok.trim(); if(!tok)return;
+        const q=tok.match(/^(\d+)\s*x\s+(.+)$/i); if(q)addGroup(cur,parseInt(q[1]),q[2].trim(),0); else addGroup(cur,1,tok,0);});
+      continue;
+    }
+    const tm=line.match(tailRe);
+    if(tm && !anyBullet.test(raw) && !sectionRe.test(line)){
+      const name=tm[1].trim(); if(!name){continue;}
+      if(skipRe.test(name)){continue;}
+      push(); cur=newUnit(name, parseInt(tm[2]));
+      continue;
+    }
+    if(sectionRe.test(line) && !tm){ continue; }         // section header
+    const bm=raw.match(bulletRe);
+    if(cur && anyBullet.test(raw) && bm){
+      const indent=bm[1].length;
+      const qty=bm[2]?parseInt(bm[2]):1;
+      addGroup(cur, qty, bm[3].trim(), indent);
+      continue;
+    }
+    // plain faction / detachment line: ignore
+  }
+  push();
+  // drop a leading army-total line ("My Army (2000 Points)") if it dwarfs the rest
+  if(units.length>=2){
+    const rest=units.slice(1).reduce((a,u)=>a+u.pts,0);
+    if(units[0].pts>=500 && units[0].pts>=rest) units.shift();
+  }
+  return units;
+}
+function previewImport(){
+  const txt=document.getElementById("importText").value;
+  const u=parseArmyList(txt);
+  const el=document.getElementById("importPreview");
+  if(!txt.trim()){el.textContent="";return;}
+  if(!u.length){el.textContent="No units detected yet — check the format, or add them manually.";return;}
+  const pts=u.reduce((a,x)=>a+(x.pts||0),0);
+  el.innerHTML="Detected <b>"+u.length+"</b> units, <b>"+pts+"</b> pts total: "+u.map(x=>esc(x.name)+" ("+x.models+")").join(", ");
+}
+function commitImport(){
+  const txt=document.getElementById("importText").value;
+  const u=parseArmyList(txt);
+  if(!u.length){alert("No units detected. Paste a text export from your army builder, or add units manually.");return;}
+  u.forEach(x=>{x.id=uid(); S[impSide].units.push(x);});
+  importDlg.close();commit();
+  flash("Imported "+u.length+" units into "+S.names[impSide]+".");
+}
+
+function copyStatsRequest(){
+  const need=[];
+  ["you","foe"].forEach(side=>{
+    S[side].units.filter(x=>x.needStats||!x.t||!x.sv).forEach(x=>need.push("- "+x.name+" ("+S.names[side]+")"));
+  });
+  let t;
+  if(!need.length){
+    t="All my units already have stats. Here is the roster if you want to double-check it:\n\n"+buildStateText();
+  }else{
+    t="You are a Warhammer 40,000 assistant. Fill in the 11th-edition datasheet stats for these units — Toughness (T), Save (Sv), Invuln (Inv), Wounds per model (W), and OC. Give one line per unit in the format:  Name — T# Sv#+ Inv#+ W# OC#  so I can type them straight into my tracker:\n\n"+need.join("\n");
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>flash("Copied — paste into your AI assistant to get the stats."),()=>openState("Ask AI for stats",t,true));
+  }else{openState("Ask AI for stats",t,true);}
+}
+
+load();render();
+
+// register service worker for offline / installable PWA (ignored when opened as a local file)
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>

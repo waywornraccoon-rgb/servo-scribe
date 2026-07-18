@@ -1,6 +1,6 @@
 // Servo-Scribe service worker — offline cache.
 // Bump CACHE when you change app files so clients pull the new version.
-const CACHE = "servo-scribe-v2";
+const CACHE = "servo-scribe-v3";
 const ASSETS = [
   "./",
   "./index.html",

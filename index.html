@@ -188,7 +188,7 @@
 <dialog id="importDlg">
   <div class="dlg-h"><span>Import army list</span><button class="btn small ghost" onclick="importDlg.close()">&#10005;</button></div>
   <div class="dlg-b">
-    <p class="hint" style="margin:0 0 8px">Paste the exported text list from the <b>Warhammer 40,000 app</b>, <b>BattleScribe</b>, <b>New Recruit</b>, or <b>WTC/GW</b> format. It reads unit names, model counts, wargear &amp; points automatically. Datasheet stats (T/Sv/W/OC) aren&rsquo;t in list exports &mdash; import first, then hit &ldquo;Get stats from AI&rdquo;.</p>
+    <p class="hint" style="margin:0 0 8px">Paste the exported text list from the <b>Warhammer 40,000 app</b>, <b>BattleScribe</b>, <b>New Recruit</b>, or <b>WTC/GW</b> format. It reads unit names, model counts, wargear &amp; points automatically. Datasheet stats (T/Sv/W/OC) aren&rsquo;t in list exports &mdash; import first, then hit &ldquo;Get stats from AI&rdquo;.<br><br><b>No list yet?</b> Ask your AI to build one in <b>New Recruit</b> (or any army builder it can reach), then paste its text export here.</p>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
       <span class="hint">Add to:</span>
       <button class="btn small" id="imp-you" onclick="setImpSide('you')">Your Army</button>
@@ -215,7 +215,7 @@
     <h4>1 &middot; Build your armies</h4>
     <ol>
       <li>Rename each army by clicking its title (&ldquo;Your Army&rdquo; / &ldquo;AI Opponent&rdquo;).</li>
-      <li>Add units with <b>+ Add unit</b>, or <b>&#11045; Import list</b> to paste a text export from the <b>Warhammer 40,000 app</b>, <b>BattleScribe</b>, or <b>New Recruit</b>. Import reads names, model counts, wargear and points automatically.</li>
+      <li>Add units with <b>+ Add unit</b>, or <b>&#11045; Import list</b> to paste a text export from the <b>Warhammer 40,000 app</b>, <b>BattleScribe</b>, or <b>New Recruit</b>. Import reads names, model counts, wargear and points automatically. You can even ask your AI to build the whole list for you in New Recruit (or any army builder it can reach) and hand you the export to paste in.</li>
       <li>List exports don&rsquo;t include datasheet stats, so imported units show a <span class="warn">&#9888; stats</span> tag. Hit <b>&#127919; Get stats from AI</b>, paste the request into your AI, and type back the T / Sv / Inv / W / OC it returns.</li>
     </ol>
 
